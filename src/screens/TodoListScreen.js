@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { IconButton } from 'react-native-paper';
 import Fallback from '../components/Fallback';
@@ -9,7 +9,6 @@ const TodoListScreen = () => {
     const [todoList, setTodoList] = useState([]);
     const [editedTodo, setEditedTodo] = useState(null);
 
-    // Function to fetch todo list from AsyncStorage
     const fetchTodoList = async () => {
         try {
             const storedTodoList = await AsyncStorage.getItem('@MyTodoList');
@@ -21,7 +20,6 @@ const TodoListScreen = () => {
         }
     };
 
-    // Function to save todo list to AsyncStorage
     const saveTodoList = async (list) => {
         try {
             await AsyncStorage.setItem('@MyTodoList', JSON.stringify(list));
@@ -40,12 +38,24 @@ const TodoListScreen = () => {
 
     const handleAddTodo = () => {
         if (todo === "") {
+            alert('You must enter a todo first!');
             return;
         }
-        const newTodo = { id: Date.now().toString(), title: todo };
+        const newTodo = { id: Date.now().toString(), title: todo, finishedColor: 'red' };
         const updatedTodoList = [...todoList, newTodo];
         setTodoList(updatedTodoList);
         setTodo('');
+    };
+
+    const handleToggleFinishTodo = (id) => {
+        const updatedTodoList = todoList.map((item) => {
+            if (item.id === id) {
+                const newColor = item.finishedColor === 'red' ? '#fff' : 'red';
+                return { ...item, finishedColor: newColor };
+            }
+            return item;
+        });
+        setTodoList(updatedTodoList);
     };
 
     const handleEditTodo = (todo) => {
@@ -67,71 +77,41 @@ const TodoListScreen = () => {
         setTodoList(updatedTodoList);
     };
 
-    const renderTodos = ({item, index}) => {
+    const renderTodos = ({ item }) => {
         return (
             <View style={styles.renderTodosView}>
-                <Text style={{
-                        color: '#FFF',
-                        fontSize: 20,
-                        fontWeight: 800,
-                        flex: 1
-                    }}>{item.title}
-                </Text>
-                <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item)}/>
-                <IconButton iconColor='#fff' icon = "trash-can" onPress={() => handleDeleteTodo(item.id)} />
+                <Text style={styles.todoText}>{item.title}</Text>
+                <IconButton iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id)} />
+                <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item)} />
+                <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id)} />
             </View>
         )
-    }
+    };
 
     return (
-        <View style={{alignItems: 'stretch'}}>
+        <View style={styles.container}>
             <TextInput
-                style={{borderWidth: 2,
-                    borderRadius: 8,
-                    borderColor: "#337ab7",
-                    paddingVertical: 8,
-                    paddingHorizontal: 16
-                }}
+                style={styles.input}
                 placeholder='Add New Task'
-                value = { todo }
+                value={todo}
                 onChangeText={(userText) => setTodo(userText)}
             />
-            {
-                editedTodo ? 
-                    <TouchableOpacity style={{backgroundColor: '#000',
-                        paddingVertical: 8,
-                        alignItems: 'center',
-                        marginVertical: 30,
-                        marginBottom: 90,
-                        borderRadius: 8
-                    }}
-                        onPress={() => handleUpdateTodo()}
-                    
-                    >
-                        <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 20
-                        }}>Save</Text>
-                    </TouchableOpacity>
-                    :
-                    <TouchableOpacity style={{backgroundColor: '#000',
-                        paddingVertical: 8,
-                        alignItems: 'center',
-                        marginVertical: 30,
-                        marginBottom: 90,
-                        borderRadius: 8
-                    }}
-                        onPress={() => handleAddTodo()}
-                    >
-                        <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 20
-                        }}>Add</Text>
-                    </TouchableOpacity>
+            {editedTodo ? 
+                <TouchableOpacity style={styles.button} onPress={handleUpdateTodo}>
+                    <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                :
+                <TouchableOpacity style={styles.button} onPress={handleAddTodo}>
+                    <Text style={styles.buttonText}>Add</Text>
+                </TouchableOpacity>
             }
             <FlatList 
                 data={todoList}
                 renderItem={renderTodos}
+                keyExtractor={(item) => item.id}
+                ListEmptyComponent={<Fallback />}
+                contentContainerStyle={styles.flatListContent}
             />
-            {
-                todoList.length <= 0 && <Fallback/>
-            }
         </View>
     )
 }
@@ -140,25 +120,32 @@ export default TodoListScreen
 
 const styles = StyleSheet.create({
     container: {
-        //flex: 1,
+        flex: 1,
+        padding: 16,
         backgroundColor: '#fff',
+    },
+    input: {
+        borderWidth: 2,
+        borderRadius: 8,
+        borderColor: "#337ab7",
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        marginBottom: 20,
+    },
+    button: {
+        backgroundColor: '#000',
+        paddingVertical: 8,
         alignItems: 'center',
-        justifyContent: 'center',
-      },
-    simpleShadow: {
-        borderTopWidth: 0.5,
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
-        borderLeftWidth: 0.5,
-        borderTopColor: 'rgba(0,0,0,0.1)',
-        borderRightColor: 'rgba(0,0,0,0.2)',
-        borderBottomColor: 'rgba(0,0,0,0.2)',
-        borderLeftColor: 'rgba(0,0,0,0.1)',
-
-        backgroundColor: 'white',
-        margin: 10,
-        padding: 10,
-        borderRadius: 10
+        borderRadius: 8,
+        marginBottom: 20,
+    },
+    buttonText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+    flatListContent: {
+        flexGrow: 1,
     },
     renderTodosView: {
         backgroundColor: '#1e90ff',
@@ -177,5 +164,14 @@ const styles = StyleSheet.create({
         borderRightColor: 'rgba(0,0,0,0.2)',
         borderBottomColor: 'rgba(0,0,0,0.3)',
         borderLeftColor: 'rgba(0,0,0,0.1)',
-    }
-})
+    },
+    todoText: {
+        color: '#FFF',
+        fontSize: 20,
+        fontWeight: '800',
+        flex: 1,
+    },
+});
+
+
+
