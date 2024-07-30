@@ -36,7 +36,7 @@ const TodoListScreen = () => {
                 >
                     <Text style={styles.todoText}>{item.title}</Text>
                     <IconButton iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id, todoList, setTodoList)} />
-                    <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo)} />
+                    <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo, setDescription)} />
                     <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, todoList, setTodoList)} />
                 </TouchableOpacity>   
         );
@@ -57,7 +57,7 @@ const TodoListScreen = () => {
                 onChangeText={(userText) => setDescription(userText)}
             />
             {editedTodo ? 
-                <TouchableOpacity style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, setTodoList, setEditedTodo, setTodo)}>
+                <TouchableOpacity style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, description, setDescription, setTodoList, setEditedTodo, setTodo)}>
                     <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
                 :
