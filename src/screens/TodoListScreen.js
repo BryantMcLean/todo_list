@@ -9,12 +9,14 @@ import { handleToggleFinishTodo } from '../functions/handleToggleFinishTodo';
 import { handleEditTodo } from '../functions/handleEditTodo';
 import { handleUpdateTodo } from '../functions/handleUpdateTodo';
 import { handleDeleteTodo } from '../functions/handleDeleteTodo';
+import { handlePress } from '../functions/handlePress';
 
 const TodoListScreen = () => {
     const styles = require('../../assets/css/TodoScreenCSS');
     const [todo, setTodo] = useState("");
     const [todoList, setTodoList] = useState([]);
     const [editedTodo, setEditedTodo] = useState(null);
+    const [description, setDescription] = useState('');
 
     useEffect(() => {
         fetchTodoList(setTodoList);
@@ -26,12 +28,17 @@ const TodoListScreen = () => {
 
     const renderTodos = ({ item }) => {
         return (
-            <View style={styles.renderTodosView}>
-                <Text style={styles.todoText}>{item.title}</Text>
-                <IconButton iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id, todoList, setTodoList)} />
-                <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo)} />
-                <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, todoList, setTodoList)} />
-            </View>
+                <TouchableOpacity
+                    style={styles.renderTodosView}
+                    onPress={() => 
+                        handlePress(item.description)
+                    }
+                >
+                    <Text style={styles.todoText}>{item.title}</Text>
+                    <IconButton iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id, todoList, setTodoList)} />
+                    <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo)} />
+                    <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, todoList, setTodoList)} />
+                </TouchableOpacity>   
         );
     };
 
@@ -43,12 +50,18 @@ const TodoListScreen = () => {
                 value={todo}
                 onChangeText={(userText) => setTodo(userText)}
             />
+            <TextInput 
+                style={styles.input}
+                placeholder='Add Description'
+                value={description}
+                onChangeText={(userText) => setDescription(userText)}
+            />
             {editedTodo ? 
                 <TouchableOpacity style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, setTodoList, setEditedTodo, setTodo)}>
                     <Text style={styles.buttonText}>Save</Text>
                 </TouchableOpacity>
                 :
-                <TouchableOpacity style={styles.button} onPress={() => handleAddTodo(todo, todoList, setTodo, setTodoList)}>
+                <TouchableOpacity style={styles.button} onPress={() => handleAddTodo(todo, todoList, description, setTodo, setTodoList, setDescription)}>
                     <Text style={styles.buttonText}>Add</Text>
                 </TouchableOpacity>
             }
