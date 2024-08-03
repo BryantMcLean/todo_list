@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Fallback from '../components/Fallback';
+import Popup from '../components/Popup';
+import ConfirmationPopup from '../components/ConfirmationPopup';
 import { fetchTodoList } from '../functions/fetchTodoList';
 import { saveTodoList } from '../functions/saveTodoList';
 import { handleAddTodo } from '../functions/handleAddTodo';
@@ -10,6 +12,7 @@ import { handleEditTodo } from '../functions/handleEditTodo';
 import { handleUpdateTodo } from '../functions/handleUpdateTodo';
 import { handleDeleteTodo } from '../functions/handleDeleteTodo';
 import { handlePress } from '../functions/handlePress';
+import { handleCancelEdit } from '../functions/handleCancelEdit';
 
 const TodoListScreen = () => {
     const styles = require('../../assets/css/TodoScreenCSS');
@@ -17,6 +20,11 @@ const TodoListScreen = () => {
     const [todoList, setTodoList] = useState([]);
     const [editedTodo, setEditedTodo] = useState(null);
     const [description, setDescription] = useState('');
+    const [popupVisible, setPopupVisible] = useState(false);
+    const [popupDescription, setPopupDescription] = useState("");
+    const [confirmPopupVisible, setConfirmPopupVisible] = useState(false);
+    const [todoToDelete, setTodoToDelete] = useState(null);
+    const [todoToDeleteTitle, setTodoToDeleteTitle] = useState(""); // State for the title of the todo to delete
 
     useEffect(() => {
         fetchTodoList(setTodoList);
@@ -26,18 +34,37 @@ const TodoListScreen = () => {
         saveTodoList(todoList);
     }, [todoList]);
 
+    const closePopup = () => {
+        setPopupVisible(false);
+        setPopupDescription("");
+    };
+
+    const confirmDeleteTodo = async () => {
+        const updatedTodoList = todoList.filter((todo) => todo.id !== todoToDelete);
+        setTodoList(updatedTodoList);
+        await saveTodoList(updatedTodoList);
+        setConfirmPopupVisible(false);
+        setTodoToDelete(null);
+        setTodoToDeleteTitle(""); // Reset the title
+    };
+
+    const cancelDeleteTodo = () => {
+        setConfirmPopupVisible(false);
+        setTodoToDelete(null);
+    };
+
     const renderTodos = ({ item }) => {
         return (
                 <TouchableOpacity
                     style={styles.renderTodosView}
                     onPress={() => 
-                        handlePress(item.description)
+                        handlePress(item.description, setPopupDescription, setPopupVisible)
                     }
                 >
                     <Text style={styles.todoText}>{item.title}</Text>
                     <IconButton iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id, todoList, setTodoList)} />
                     <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo, setDescription)} />
-                    <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, todoList, setTodoList)} />
+                    <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, item.title, item.finishedColor, setTodoToDelete, setConfirmPopupVisible, setTodoToDeleteTitle)} />
                 </TouchableOpacity>   
         );
     };
@@ -53,17 +80,25 @@ const TodoListScreen = () => {
             <TextInput 
                 style={styles.input}
                 placeholder='Add Description'
+                multiline={true}
+                numberOfLines={4}
                 value={description}
                 onChangeText={(userText) => setDescription(userText)}
             />
             {editedTodo ? 
-                <TouchableOpacity style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, description, setDescription, setTodoList, setEditedTodo, setTodo)}>
-                    <Text style={styles.buttonText}>Save</Text>
-                </TouchableOpacity>
+                <>
+                    <TouchableOpacity style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, description, setDescription, setTodoList, setEditedTodo, setTodo)}>
+                        <Text style={styles.buttonText}>Save</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => handleCancelEdit(setEditedTodo, setTodo, setDescription)}>
+                        <Text style={styles.buttonText}>Cancel</Text>
+                    </TouchableOpacity>
+                </>
                 :
                 <TouchableOpacity style={styles.button} onPress={() => handleAddTodo(todo, todoList, description, setTodo, setTodoList, setDescription)}>
                     <Text style={styles.buttonText}>Add</Text>
                 </TouchableOpacity>
+                
             }
             <FlatList 
                 data={todoList}
@@ -72,9 +107,19 @@ const TodoListScreen = () => {
                 ListEmptyComponent={<Fallback />}
                 contentContainerStyle={styles.flatListContent}
             />
+            <Popup
+                visible={popupVisible}
+                description={popupDescription}
+                onClose={closePopup}
+            />
+            <ConfirmationPopup 
+                todoTitle={todoToDeleteTitle}
+                visible={confirmPopupVisible} 
+                onConfirm={confirmDeleteTodo} 
+                onCancel={cancelDeleteTodo} 
+            />
         </View>
     );
 }
 
 export default TodoListScreen;
-

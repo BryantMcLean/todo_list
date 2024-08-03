@@ -1,6 +1,7 @@
-export const handlePress = (description) => {
-        if (description === '' || description === undefined) {
+export const handlePress = (description, setPopupDescription, setPopupVisible) => {
+        if (description === "" || description === undefined) {
             return;
         } 
-        alert(description);
+        setPopupDescription(description);
+        setPopupVisible(true);
 }

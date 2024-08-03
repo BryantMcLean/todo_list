@@ -1,11 +1,9 @@
 'use strict';
 import { StyleSheet } from 'react-native';
-import { deviceInfo } from '../../src/functions/DeviceInfo';
 
 module.exports = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         backgroundColor: '#fff',
     },
     input: {

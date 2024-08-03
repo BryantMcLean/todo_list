@@ -1,6 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, Platform, ScrollView } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { StyleSheet, View } from 'react-native';
 import TodoListScreen from './src/screens/TodoListScreen';
 import { deviceInfo } from './src/functions/DeviceInfo';
 
