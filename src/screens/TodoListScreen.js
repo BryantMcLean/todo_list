@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TextInput, FlatList, Pressable } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Fallback from '../components/Fallback';
 import Popup from '../components/Popup';
@@ -55,7 +55,7 @@ const TodoListScreen = () => {
 
     const renderTodos = ({ item }) => {
         return (
-                <TouchableOpacity
+                <Pressable
                     style={styles.renderTodosView}
                     onPress={() => 
                         handlePress(item.description, setPopupDescription, setPopupVisible)
@@ -65,39 +65,45 @@ const TodoListScreen = () => {
                     <IconButton iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id, todoList, setTodoList)} />
                     <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo, setDescription)} />
                     <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, item.title, item.finishedColor, setTodoToDelete, setConfirmPopupVisible, setTodoToDeleteTitle)} />
-                </TouchableOpacity>   
+                </Pressable>   
         );
     };
 
     return (
         <View style={styles.container}>
             <TextInput
+                key={1}
+                id='taskID'
+                name={'task'}
                 style={styles.input}
                 placeholder='Add New Task'
                 value={todo}
                 onChangeText={(userText) => setTodo(userText)}
             />
             <TextInput 
+                key={2}
+                id='descID'
+                name={'description'}
                 style={styles.input}
                 placeholder='Add Description'
                 multiline={true}
-                numberOfLines={4}
+                rows={4}
                 value={description}
                 onChangeText={(userText) => setDescription(userText)}
             />
             {editedTodo ? 
                 <>
-                    <TouchableOpacity style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, description, setDescription, setTodoList, setEditedTodo, setTodo)}>
+                    <Pressable style={styles.button} onPress={() => handleUpdateTodo(todo, editedTodo, todoList, description, setDescription, setTodoList, setEditedTodo, setTodo)}>
                         <Text style={styles.buttonText}>Save</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => handleCancelEdit(setEditedTodo, setTodo, setDescription)}>
+                    </Pressable>
+                    <Pressable style={styles.button} onPress={() => handleCancelEdit(setEditedTodo, setTodo, setDescription)}>
                         <Text style={styles.buttonText}>Cancel</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </>
                 :
-                <TouchableOpacity style={styles.button} onPress={() => handleAddTodo(todo, todoList, description, setTodo, setTodoList, setDescription)}>
+                <Pressable style={styles.button} onPress={() => handleAddTodo(todo, todoList, description, setTodo, setTodoList, setDescription)}>
                     <Text style={styles.buttonText}>Add</Text>
-                </TouchableOpacity>
+                </Pressable>
                 
             }
             <FlatList 

@@ -7,7 +7,7 @@ const Fallback = () => {
         <View style={{alignItems: 'center'}}>
             <Image
                 source={require('../../assets/Fallback.png')}
-                style={{width: 400, height: 400}}
+                style={{width: 300, height: 300}}
             />
             <Text>Start Adding Your Task</Text>
         </View>

@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import TodoListScreen from './src/screens/TodoListScreen';
 import { deviceInfo } from './src/functions/DeviceInfo';
 
@@ -6,9 +7,9 @@ import { deviceInfo } from './src/functions/DeviceInfo';
 export default function App() {
   return (
     
-      <View style={styles.container} >
+      <SafeAreaView style={styles.container} >
           <TodoListScreen/>
-      </View>
+      </SafeAreaView>
   );
 }
 
