@@ -71,6 +71,7 @@ const TodoListScreen = () => {
 
     return (
         <View style={styles.container}>
+            <Text style={{alignSelf: 'center', fontSize: 22,fontWeight: 'bold', color: '#337AB7', paddingBottom: 15}}>Todo List</Text>
             <TextInput
                 key={1}
                 id='taskID'
