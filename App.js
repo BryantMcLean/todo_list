@@ -1,29 +1,88 @@
+import React, { useEffect } from 'react';
+import 'react-native-gesture-handler';
 import { StyleSheet, View, StatusBar } from 'react-native';
-import Constants from 'expo-constants';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import * as Notifications from 'expo-notifications';
 import TodoListScreen from './src/screens/TodoListScreen';
 import { deviceInfo } from './src/functions/DeviceInfo';
+import SortFilterScreen from './src/screens/SortFilterScreen';
+import { SortFilterProvider } from './src/functions/SortFilterContext';
+import registerNNPushToken from 'native-notify';
 
 export default function App() {
 
-  const statusBarHeight = Constants.statusBarHeight;
+	registerNNPushToken(23085, 'UB1r4VC04dUcfSDo1CfNLr');
 
-  return (
-      <View style={styles.container} >
-        <StatusBar />
-        <TodoListScreen/>
-      </View>
-  );
+	/* Notifications.setNotificationHandler({
+		handleNotification: async () => ({
+		  shouldShowAlert: true,
+		  shouldPlaySound: true,
+		  shouldSetBadge: false,
+		}),
+	  }); */
+
+	const Stack = createStackNavigator();
+
+	/* useEffect(() => {
+		const getNotificationPermissions = async () => {
+		  const { status } = await Notifications.getPermissionsAsync();
+		  if (status !== 'granted') {
+			await Notifications.requestPermissionsAsync();
+		  }
+		};
+	
+		getNotificationPermissions();
+	  }, []); */
+
+	return (
+		<SortFilterProvider>
+			<NavigationContainer >
+				<View style={styles.container}>
+					<StatusBar />
+					<Stack.Navigator initialRouteName='TodoListScreen'>
+						<Stack.Screen
+						name='TodoListScreen'
+						component={TodoListScreen}
+						options={{
+							title: "Todo List",
+							headerTitleStyle:{
+							fontSize: 20,
+							fontWeight: '700',
+							alignSelf: 'center',
+							color: '#337ab7',
+							}
+						}}
+						/>
+						<Stack.Screen
+						name='SortFilterScreen'
+						component={SortFilterScreen}
+						options={{
+							title: "Sort & Filter",
+							headerTitleStyle:{
+							fontSize: 20,
+							fontWeight: '700',
+							alignSelf: 'center',
+							color: '#337ab7',
+							}
+						}}
+						/>
+					</Stack.Navigator>
+				</View>
+			</NavigationContainer>
+		</SortFilterProvider>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginHorizontal: deviceInfo.isDesktop ? null : 30,
-    marginVertical: deviceInfo.isDesktop ? 65 : 40,
-    width: deviceInfo.isDesktop ? '100%' : null,
-    //alignItems: deviceInfo.isDesktop ? 'stretch' : null,
-    justifyContent: deviceInfo.isDesktop ? 'center' : null,
-    marginLeft: deviceInfo.isDesktop ? 550 : null,
-    marginRight: deviceInfo.isDesktop ? 550 : null,
-  },
+	container: {
+		flex: 1,
+		marginHorizontal: deviceInfo.isDesktop ? null : 30,
+		marginVertical: deviceInfo.isDesktop ? 65 : 40,
+		width: deviceInfo.isDesktop ? '100%' : null,
+		//alignItems: deviceInfo.isDesktop ? 'stretch' : null,
+		justifyContent: deviceInfo.isDesktop ? 'center' : null,
+		marginLeft: deviceInfo.isDesktop ? 550 : null,
+		marginRight: deviceInfo.isDesktop ? 550 : null,
+	},
 });

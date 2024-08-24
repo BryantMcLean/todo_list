@@ -1,5 +1,6 @@
 'use strict';
 import { StyleSheet } from 'react-native';
+import { deviceInfo } from '../../src/functions/DeviceInfo';
 
 module.exports = StyleSheet.create({
     container: {
@@ -35,7 +36,7 @@ module.exports = StyleSheet.create({
         paddingHorizontal: 6,
         paddingVertical: 6,
         marginTop: 20,
-        flexDirection: 'row',
+        flexDirection: deviceInfo.isPhone ? 'column' : 'row',
         alignItems: 'center',
         elevation: 1,
         borderTopWidth: 0.5,
@@ -51,6 +52,12 @@ module.exports = StyleSheet.create({
         color: '#FFF',
         fontSize: 20,
         fontWeight: '800',
+        flex: 1,
+    },
+    todoDate: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '600',
         flex: 1,
     },
 })

@@ -1,15 +1,25 @@
 export default{
   expo: {
     name: "Todo List",
+    owner: "gbmclean64",
     slug: "todo_list",
     version: "1.0.0",
     icon: "./assets/Fallback.png",
+    orientation: 'portrait',
     userInterfaceStyle: "light",
     splash: {
       image: "./assets/Fallback.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
+    plugins: [[
+      "expo-notifications",
+      {
+        "icon": "./assets/notification-icon.png",
+        "color": "#337ab7",
+        "sounds": ""
+      }
+    ]],
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.iwdtx.todo-list"
@@ -22,7 +32,7 @@ export default{
       "package": "com.iwdtx.todo_list"
     },
     web: {
-      favicon: "./assets/favicon.png"
+      favicon: "./assets/Fallback.png"
     },
     extra: {
       eas: {
