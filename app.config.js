@@ -17,7 +17,6 @@ export default{
       {
         "icon": "./assets/notification-icon.png",
         "color": "#337ab7",
-        "sounds": ""
       }
     ]],
     ios: {
