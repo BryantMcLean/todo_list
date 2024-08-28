@@ -36,6 +36,7 @@ const TodoListScreen = () => {
     const [selectedTodo, setSelectedTodo] = useState(null); // State to hold the selected todo for setting reminder
     const [show, setShow] = useState(false);
     const [mode, setMode] = useState(false);
+    const [showReminder, setShowReminder] = useState(false);
 
 
     const navigation = useNavigation();
@@ -43,28 +44,28 @@ const TodoListScreen = () => {
 
     Notifications.setNotificationHandler({
         handleNotification: async () => ({
-          shouldShowAlert: true,
-          shouldPlaySound: true,
-          shouldSetBadge: true,
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: true,
         }),
     });
 
     useEffect(() => {
         const loadTodos = async () => {
-          try {
-            const storedTodos = await AsyncStorage.getItem('todos');
-            if (storedTodos) {
-              const parsedTodos = JSON.parse(storedTodos);
-              setTodoList(parsedTodos);
-              setDisplayedTodoList(parsedTodos); // Initialize displayed list
+            try {
+                const storedTodos = await AsyncStorage.getItem('todos');
+                if (storedTodos) {
+                const parsedTodos = JSON.parse(storedTodos);
+                setTodoList(parsedTodos);
+                setDisplayedTodoList(parsedTodos); // Initialize displayed list
+                }
+            } catch (error) {
+                console.error(error);
             }
-          } catch (error) {
-            console.error(error);
-          }
         };
     
         loadTodos();
-      }, []);
+    }, []);
 
     useEffect(() => {
         let sortedFilteredTodos = [...todoList];
@@ -129,19 +130,19 @@ const TodoListScreen = () => {
         setShow(false);
         setReminderDate(currentDate);
         console.log("Date Change: ", currentDate)
-      };
+    };
 
-      const showMode = (modeToShow) => {
+    const showMode = (modeToShow) => {
         setShow(true);
         setMode(modeToShow);
-      }
+    }
     
-      const handleAddTodoWithReminder = () => {
+    const handleAddTodoWithReminder = () => {
         handleAddTodo(todo, todoList, description, setTodo, setTodoList, setDescription, reminderDate, setReminderDate);
         setShowDatePicker(false);
-      };
+    };
     
-      const scheduleNotification = async (date, title) => {
+    const scheduleNotification = async (date, title) => {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: title,
@@ -149,7 +150,7 @@ const TodoListScreen = () => {
           },
           trigger: date,
         });
-      }; 
+    }; 
 
     const renderTodos = ({ item }) => {
         const todoDate = new Date(parseInt(item.id)); // Convert the timestamp to a Date object
@@ -178,7 +179,7 @@ const TodoListScreen = () => {
                 </Text>
                 <View style={{flexDirection: 'row'}}>
                     <IconButton on style={{backgroundColor: '#FFF', width: 32, height: 32,}} iconColor={item.finishedColor} size={32} icon="check" onPress={() => handleToggleFinishTodo(item.id, todoList, setTodoList)} />
-                    <IconButton iconColor='#fff' icon="pencil" onPress={() => handleEditTodo(item, setEditedTodo, setTodo, setDescription, setShowDatePicker)} />
+                    <IconButton iconColor='#fff' icon="pencil" onPress={() => {handleEditTodo(item, setEditedTodo, setTodo, setDescription, setShowDatePicker), setShowReminder(true)}} />
                     <IconButton iconColor='#fff' icon="trash-can" onPress={() => handleDeleteTodo(item.id, item.title, item.finishedColor, setTodoToDelete, setConfirmPopupVisible, setTodoToDeleteTitle)} />
                     <IconButton
                         iconColor='#fff'
@@ -213,29 +214,34 @@ const TodoListScreen = () => {
                 value={description}
                 onChangeText={(userText) => setDescription(userText)}
             />
-            <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12}}>
-                <Pressable
-                    style={{paddingHorizontal: 16,}}
-                    onPress = {() => showMode('date')}
-                ><Text>Date Picker</Text>
-                </Pressable>
-                <Pressable
-                    style={{paddingHorizontal: 16,}}
-                    onPress = {() => showMode('time')}
-                ><Text>Time Picker</Text>
-                </Pressable>
-            </View>
-            <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12}}>
-                <Text>{reminderDate.toLocaleString()}</Text>
-            </View>
+            { showReminder && 
+                <View style = {{borderWidth: 2, borderColor: '#337AB7', borderRadius: 8, marginBottom: 20}}>
+                    <Text style = {{alignSelf: 'center', justifyContent: 'center', fontSize: 20, color: '#1e90ff'}}>Set Reminder</Text>
+                    <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 16}}>
+                        <Pressable
+                            style={{paddingHorizontal: 12,}}
+                            onPress = {() => showMode('date')}
+                        ><Text style = {{fontSize: 18, color: '#1e90ff'}}>Select Date{'\n'}{reminderDate.toLocaleDateString()}</Text>
+                        </Pressable>
+                        <Pressable
+                            style={{paddingHorizontal: 12, }}
+                            onPress = {() => showMode('time')}
+                        ><Text style = {{fontSize: 18, color: '#1e90ff'}}>Select Time{'\n'}{reminderDate.toLocaleTimeString()}</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            }
             {editedTodo ? 
                 <>
                     <Pressable style={styles.button} onPress={() => {
                         console.log('Calling handleUpdateTodo with:', { todoList });
-                        handleUpdateTodo(todo, editedTodo, todoList, description, reminderDate, setReminderDate, setDescription, setTodoList, setEditedTodo, setTodo, setShowDatePicker, scheduleNotification )}}>
+                        handleUpdateTodo(todo, editedTodo, todoList, description, reminderDate, setReminderDate, setDescription, setTodoList, setEditedTodo, setTodo, setShowDatePicker, scheduleNotification ),
+                        setShowReminder(false);}}>
                         <Text style={styles.buttonText}>Save</Text>
                     </Pressable>
-                    <Pressable style={styles.button} onPress={() => handleCancelEdit(setEditedTodo, setTodo, setDescription, setShowDatePicker)}>
+                    <Pressable style={styles.button} onPress={() => {handleCancelEdit(setEditedTodo, setTodo, setDescription, setShowDatePicker),
+                        setShowReminder(false);
+                    }}>
                         <Text style={styles.buttonText}>Cancel</Text>
                     </Pressable>
                 </>
