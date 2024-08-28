@@ -42,13 +42,13 @@ const TodoListScreen = () => {
     const navigation = useNavigation();
     const { sortOption, setSortOption, filterOption, setFilterOption } = useSortFilter();
 
-    Notifications.setNotificationHandler({
+    /* Notifications.setNotificationHandler({
         handleNotification: async () => ({
             shouldShowAlert: true,
             shouldPlaySound: true,
             shouldSetBadge: true,
         }),
-    });
+    }); */
 
     useEffect(() => {
         const loadTodos = async () => {
