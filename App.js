@@ -3,10 +3,11 @@ import 'react-native-gesture-handler';
 import { StyleSheet, View, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as Notifications from 'expo-notifications';
+//import * as Notifications from 'expo-notifications';
 import TodoListScreen from './src/screens/TodoListScreen';
 import { deviceInfo } from './src/functions/DeviceInfo';
 import SortFilterScreen from './src/screens/SortFilterScreen';
+import PrintTodoListScreen from './src/screens/PrintTodoListScreen';
 import { SortFilterProvider } from './src/functions/SortFilterContext';
 import registerNNPushToken from 'native-notify';
 
@@ -33,7 +34,7 @@ export default function App() {
 		};
 	
 		getNotificationPermissions();
-	  }, []); */
+	}, []); */
 
 	return (
 		<SortFilterProvider>
@@ -59,6 +60,19 @@ export default function App() {
 						component={SortFilterScreen}
 						options={{
 							title: "Sort & Filter",
+							headerTitleStyle:{
+							fontSize: 20,
+							fontWeight: '700',
+							alignSelf: 'center',
+							color: '#337ab7',
+							}
+						}}
+						/>
+						<Stack.Screen
+						name='PrintTodoListScreen'
+						component={PrintTodoListScreen}
+						options={{
+							title: "Print Todo List",
 							headerTitleStyle:{
 							fontSize: 20,
 							fontWeight: '700',

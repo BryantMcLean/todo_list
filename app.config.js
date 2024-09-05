@@ -15,7 +15,7 @@ export default{
     plugins: [[
       "expo-notifications",
       {
-        "icon": "./assets/notification-icon.png",
+        "icon": "./assets/Fallback.png",
         "color": "#337ab7",
       }
     ]],

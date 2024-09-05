@@ -24,7 +24,7 @@ const SortFilterScreen = ({ navigation, route }) => {
                 selectedValue={selectedSortOption}
                 onValueChange={(itemValue) => setSelectedSortOption(itemValue)}
             >
-                <Picker.Item label="Creation Date" value="creationDate" />
+                <Picker.Item  style={{lineHeight: 15, color: 'red'}} label="Creation Date" value="creationDate" />
                 <Picker.Item label="Finished Date" value="finishedDate" />
             </Picker>
 

@@ -60,4 +60,10 @@ module.exports = StyleSheet.create({
         fontWeight: '600',
         flex: 1,
     },
+    spacer: {
+        height: 8,
+    },
+    printer: {
+        textAlign: 'center',
+    },
 })
