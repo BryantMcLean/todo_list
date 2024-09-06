@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, TextInput, FlatList, Pressable, Platform, Button, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';  // Correct import for FileSystem
 import { useSortFilter } from '../../src/functions/SortFilterContext';
 import { IconButton } from 'react-native-paper';
 import * as Notifications from 'expo-notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Print from 'expo-print';
-import { shareAsync } from 'expo-sharing';
+import * as Sharing from 'expo-sharing';
 import Fallback from '../components/Fallback';
 import Popup from '../components/Popup';
 import ConfirmationPopup from '../components/ConfirmationPopup';
@@ -193,155 +194,60 @@ const TodoListScreen = () => {
         );
     };
 
-    const [selectedPrinter, setSelectedPrinter] = React.useState();
-
-    const print = async () => {
+    const handlePrint = async () => {
         try {
-            // On iOS/android prints the given html. On web prints the HTML from the current page.
-            await Print.printAsync({
-            html,
-            printerUrl: selectedPrinter?.url, // iOS only
+            // Send the POST request to generate the PDF
+            const response = await fetch('https://frozen-dusk-02308-d6781e7d6bae.herokuapp.com/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ todoList }),  // Send the todo list as the body
             });
-        } catch (error) {
-            if (error.message.includes('Print job did not complete') || error.message.includes('Printing did not complete')) {
-                // These errors occur when the user cancels the print job or it doesn't complete
-                console.log('Print job was canceled or did not complete.');
-                // Optionally, you can alert the user or simply ignore this error
-                Alert.alert('Print Job Canceled', 'The print job was canceled or did not complete.');
+    
+            if (!response.ok) {
+                throw new Error('Failed to generate PDF');
+            }
+    
+            // Get the PDF file as a blob
+            const pdfBlob = await response.blob();
+    
+            // Convert blob to base64
+            const base64data = await blobToBase64(pdfBlob);
+    
+            // Get the local file system path to save the PDF
+            const fileUri = FileSystem.documentDirectory + 'generated-todo-list.pdf';
+    
+            // Write the PDF file to the file system in base64
+            await FileSystem.writeAsStringAsync(fileUri, base64data, {
+                encoding: FileSystem.EncodingType.Base64
+            });
+    
+            // Open or share the PDF
+            if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(fileUri);
             } else {
-                console.error('An unexpected error occurred:', error);
-                Alert.alert('Print Error', 'An unexpected error occurred while printing.');
+                Alert.alert('Sharing not available');
             }
-        }   
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            Alert.alert('Error', 'Could not generate PDF');
+        }
     };
-
-    const printToFile = async () => {
-    // On iOS/android prints the given html. On web prints the HTML from the current page.
-        const { uri } = await Print.printToFileAsync({ html });
-        console.log('File has been saved to:', uri);
-        await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+    
+    // Helper function to convert Blob to Base64
+    const blobToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64data = reader.result.split(',')[1]; // Removing the "data:application/pdf;base64," part
+                resolve(base64data);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
     };
-
-    const selectPrinter = async () => {
-        const printer = await Print.selectPrinterAsync(); // iOS only
-        setSelectedPrinter(printer);
-    };
-
-    const generateTodoListHTML = () => {
-        return displayedTodoList.map((todo, index) => {
-            const createdDate = new Date(parseInt(todo.id)); // Convert the timestamp to a Date object
-            const formattedDate = createdDate.toLocaleDateString() + ' ' + createdDate.toLocaleTimeString(); // Format the date
-            const finishedDate = todo.finishedDate ? new Date(todo.finishedDate) : null;
-            const formattedFinishedDate = finishedDate ? `${finishedDate.toLocaleDateString()} ${finishedDate.toLocaleTimeString()}` : '';
-
-            const pageBreakStyle = (index % 3 === 0) ? 'page-break-before: always' : '';
-            return `
-                <section class="todo-item">
-                    <span style="font-size:20px"><strong>${todo.title}</strong></span><br/>
-                    ${todo.description ? `<span style="font-size: 14px">${todo.description}</span><br/>` : ''}
-                    <span style="font-size: 10px">Created on: ${formattedDate}</span><br/>
-                    ${formattedFinishedDate ? `<span style="font-size: 10px"><u>Finished on: ${formattedFinishedDate}</u></span><br/>` : '<span style="font-size: 10px">Not Completed</span>'}
-                    <br/>
-                </section>
-            `;
-        }).join('');
-    };
-      
-      
-
-    const html = `
-    <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
-        <style>
-            @media print {
-                .container {
-                    display: block;
-                    height: auto;
-                }
-                section {
-                    break-inside: avoid;
-                }
-            }
-
-            @page :first{
-                margin-top: 0;
-            }
-
-            @page {
-                margin-top: .5in;
-            }
     
-            body {
-                padding-top: 50px;
-                font-family: Arial, sans-serif;
-                margin: 0px 30px 15px 30px;
-            }
-    
-            .header-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-    
-            .header-container img {
-                max-width: 100px;
-                height: auto;
-                margin-right: 20px;
-            }
-    
-            .header-container h1 {
-                font-size: 40px;
-                font-family: Helvetica Neue;
-                font-weight: normal;
-                margin: 0;
-            }
-    
-            .todo-list {
-                display: grid;
-                grid-template-columns: 1fr 1fr; /* Two equal-width columns */
-                gap: 20px;
-            }
-    
-            .todo-item {
-                -webkit-column-break-inside: avoid;
-                break-inside: avoid; /* Prevents breaking the item across pages */
-                page-break-inside: avoid;
-                border: 1px solid #ddd;
-                padding: 15px;
-                border-radius: 5px;
-                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-                margin-bottom: 20px;
-                background-color: #f9f9f9;
-            }
-    
-            /* Specific styles for WebKit-based browsers like Safari on iOS */
-            @media print and (-webkit-min-device-pixel-ratio: 0) {
-                .todo-item {
-                    break-inside: avoid-column; /* Ensures the item doesn't break inside columns */
-                    page-break-inside: avoid;
-                    display: block;
-                }
-                /* .todo-item:nth-child(8n) {
-                    page-break-before: always;
-                } */
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header-container">
-                <img src="https://infinitewebdevelopment.s3.us-west-2.amazonaws.com/EmptyFallback.png" alt="Empty Fallback Image"/>
-                <h1>Todo List</h1>
-            </div>
-            <div class="todo-list">
-                ${generateTodoListHTML()}
-            </div>
-        </div>
-    </body>
-    </html>
-    `;
 
 
     return (
@@ -421,19 +327,9 @@ const TodoListScreen = () => {
                 />
             </View>
             }
-            <Button title="Print List" onPress={() => navigation.navigate('PrintTodoListScreen', { todoList })} />
-            <View style={styles.spacer} />
-            <Button title="Print to PDF file" onPress={printToFile} />
-            {Platform.OS === 'ios' && (
-                <>
-                <View style={styles.spacer} />
-                <Button title="Select printer" onPress={selectPrinter} />
-                <View style={styles.spacer} />
-                {selectedPrinter ? (
-                    <Text style={styles.printer}>{`Selected printer: ${selectedPrinter.name}`}</Text>
-                ) : undefined}
-                </>
-            )}
+
+            <Button title="Print List" onPress={handlePrint} />
+            
             <FlatList 
                 data={displayedTodoList}
                 renderItem={renderTodos}
