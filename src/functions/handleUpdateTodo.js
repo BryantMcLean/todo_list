@@ -10,6 +10,6 @@ export const handleUpdateTodo = (todo, editedTodo, todoList, description, remind
     setShowDatePicker(false);
 
     // Schedule notification
-    scheduleNotification(reminderDate, todo); 
+    //scheduleNotification(reminderDate, todo); 
 
 };

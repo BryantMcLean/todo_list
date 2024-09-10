@@ -155,7 +155,7 @@ export const htmlContentForAndroid = (todoList) => `
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            background-color: #e9e9e9;
             margin-bottom: 20px;
             page-break-inside: avoid;
             break-inside: avoid;

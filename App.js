@@ -9,11 +9,11 @@ import { deviceInfo } from './src/functions/DeviceInfo';
 import SortFilterScreen from './src/screens/SortFilterScreen';
 import PrintTodoListScreen from './src/screens/PrintTodoListScreen';
 import { SortFilterProvider } from './src/functions/SortFilterContext';
-import registerNNPushToken from 'native-notify';
+//import registerNNPushToken from 'native-notify';
 
 export default function App() {
 
-	registerNNPushToken(23085, 'UB1r4VC04dUcfSDo1CfNLr');
+	//registerNNPushToken(23085, 'UB1r4VC04dUcfSDo1CfNLr');
 
 	/* Notifications.setNotificationHandler({
 		handleNotification: async () => ({

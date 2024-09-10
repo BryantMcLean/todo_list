@@ -4,8 +4,9 @@ import { View, Text, TextInput, FlatList, Pressable, Platform, Button, Alert } f
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';  // Correct import for FileSystem
 import { useSortFilter } from '../../src/functions/SortFilterContext';
+import { htmlContentForAndroid, htmlContentForiOS } from '../components/htmlTemplates';
 import { IconButton } from 'react-native-paper';
-import * as Notifications from 'expo-notifications';
+//import * as Notifications from 'expo-notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -145,7 +146,7 @@ const TodoListScreen = () => {
         setShowDatePicker(false);
     };
     
-    const scheduleNotification = async (date, title, body) => {
+    /* const scheduleNotification = async (date, title, body) => {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: title,
@@ -153,7 +154,7 @@ const TodoListScreen = () => {
           },
           trigger: date,
         });
-    }; 
+    }; */ 
 
     const renderTodos = ({ item }) => {
         const todoDate = new Date(parseInt(item.id)); // Convert the timestamp to a Date object
@@ -195,6 +196,10 @@ const TodoListScreen = () => {
     };
 
     const handlePrint = async () => {
+        // Generate HTML content based on the platform
+        const htmlContent = Platform.OS === 'ios' 
+        ? htmlContentForiOS(todoList) 
+        : htmlContentForAndroid(todoList);
         try {
             // Send the POST request to generate the PDF
             const response = await fetch('https://frozen-dusk-02308-d6781e7d6bae.herokuapp.com/generate-pdf', {
@@ -202,7 +207,7 @@ const TodoListScreen = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ todoList }),  // Send the todo list as the body
+                body: JSON.stringify({ htmlContent }),  // Send the todo list as the body
             });
     
             if (!response.ok) {
