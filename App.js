@@ -3,38 +3,16 @@ import 'react-native-gesture-handler';
 import { StyleSheet, View, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-//import * as Notifications from 'expo-notifications';
 import TodoListScreen from './src/screens/TodoListScreen';
 import { deviceInfo } from './src/functions/DeviceInfo';
 import SortFilterScreen from './src/screens/SortFilterScreen';
 import PrintTodoListScreen from './src/screens/PrintTodoListScreen';
 import { SortFilterProvider } from './src/functions/SortFilterContext';
-//import registerNNPushToken from 'native-notify';
 
 export default function App() {
 
-	//registerNNPushToken(23085, 'UB1r4VC04dUcfSDo1CfNLr');
-
-	/* Notifications.setNotificationHandler({
-		handleNotification: async () => ({
-		  shouldShowAlert: true,
-		  shouldPlaySound: true,
-		  shouldSetBadge: false,
-		}),
-	  }); */
-
 	const Stack = createStackNavigator();
 
-	/* useEffect(() => {
-		const getNotificationPermissions = async () => {
-		  const { status } = await Notifications.getPermissionsAsync();
-		  if (status !== 'granted') {
-			await Notifications.requestPermissionsAsync();
-		  }
-		};
-	
-		getNotificationPermissions();
-	}, []); */
 
 	return (
 		<SortFilterProvider>

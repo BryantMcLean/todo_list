@@ -27,6 +27,13 @@ const ConfirmationPopup = ({ visible, onConfirm, onCancel, todoTitle }) => {
     );
 };
 
+ConfirmationPopup.propTypes = {
+    visible: PropTypes.bool.isRequired,
+    onConfirm: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    todoTitle: PropTypes.string,
+};
+
 const styles = StyleSheet.create({
     modalBackground: {
         flex: 1,
