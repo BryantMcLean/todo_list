@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system';  // Correct import for FileSyste
 import { useSortFilter } from '../../src/functions/SortFilterContext';
 import { htmlContentForAndroid, htmlContentForiOS } from '../components/htmlTemplates';
 import { IconButton } from 'react-native-paper';
-//import * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -46,13 +46,13 @@ const TodoListScreen = () => {
     const navigation = useNavigation();
     const { sortOption, setSortOption, filterOption, setFilterOption } = useSortFilter();
 
-    /* Notifications.setNotificationHandler({
+    Notifications.setNotificationHandler({
         handleNotification: async () => ({
             shouldShowAlert: true,
             shouldPlaySound: true,
             shouldSetBadge: true,
         }),
-    }); */
+    });
 
     useEffect(() => {
         const loadTodos = async () => {
@@ -129,7 +129,7 @@ const TodoListScreen = () => {
     };
 
      const handleDateChange = (event, selectedDate) => {
-        const currentDate = selectedDate || reminderDate;
+        const currentDate = selectedDate;
         setShowDatePicker(Platform.OS === 'ios');
         setShow(false);
         setReminderDate(currentDate);
@@ -146,7 +146,7 @@ const TodoListScreen = () => {
         setShowDatePicker(false);
     };
     
-    /* const scheduleNotification = async (date, title, body) => {
+    const scheduleNotification = async (date, title, body) => {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: title,
@@ -154,7 +154,7 @@ const TodoListScreen = () => {
           },
           trigger: date,
         });
-    }; */ 
+    };
 
     const renderTodos = ({ item }) => {
         const todoDate = new Date(parseInt(item.id)); // Convert the timestamp to a Date object
@@ -274,7 +274,9 @@ const TodoListScreen = () => {
                 style={styles.input}
                 placeholder='Add Description'
                 multiline={true}
-                rows={4}
+                scrollEnabled={true}
+                persistentScrollbar={true}
+                rows={3}
                 value={description}
                 onChangeText={(userText) => setDescription(userText)}
             />
@@ -313,12 +315,18 @@ const TodoListScreen = () => {
                 <Pressable style={styles.button} onPress={() => {handleAddTodo(todo, todoList, description, setTodo, setTodoList, setDescription, reminderDate, setReminderDate),
                     setShowDatePicker(false);
                 }}>
-                    <Text style={styles.buttonText}>Add</Text>
+                    <Text style={styles.buttonText}>Add New Todo</Text>
                 </Pressable>
             }
-            <Pressable style={{alignSelf: "center", }} onPress={() => navigation.navigate('SortFilterScreen')}>
-                <Text style={{fontSize: 16, color: '#337ab7' }}>Sort & Filter</Text>
-            </Pressable>
+            <View style={{flexDirection:'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <Pressable style={{alignSelf: "center"}} onPress={() => navigation.navigate('SortFilterScreen')}>
+                    <Text style={{fontSize: 16, color: '#337ab7' }}>Sort & Filter</Text>
+                </Pressable>
+                 <Pressable style={{alignSelf: "center" }} onPress={handlePrint}>
+                    <Text style={{fontSize: 16, color: '#337ab7' }}>Print List</Text>
+                </Pressable>
+            </View>
+            
             { show && 
             <View style = {{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12}}>
                 <DateTimePicker
@@ -333,7 +341,7 @@ const TodoListScreen = () => {
             </View>
             }
 
-            <Button title="Print List" onPress={handlePrint} />
+           
             
             <FlatList 
                 data={displayedTodoList}
